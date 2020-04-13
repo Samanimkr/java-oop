@@ -4,4 +4,8 @@ public class Food {
     return "animal eats food";
   }
 
+  public String eaten(String animal) {
+    return animal + " eats food";
+  }
+
 }

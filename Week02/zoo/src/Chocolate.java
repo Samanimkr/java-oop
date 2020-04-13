@@ -1,5 +1,13 @@
 public class Chocolate extends Food {
 
-  //TODO:
+    @Override
+    public String eaten(Animal animal) {
+        return "animal eats chocolate";
+    }
+
+    @Override
+    public String eaten(String animal) {
+        return animal + " eats chocolate";
+    }
   
 }
