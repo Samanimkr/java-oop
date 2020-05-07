@@ -9,12 +9,12 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 		GameStateCreationTest.class,
-		GameStateGameOverTest.class,
-		GameStateRoundTest.class,
-		GameStatePlayerTest.class,
-		GameStateDetectivesAvailableMovesTest.class,
-		GameStateMrXAvailableMovesTest.class,
-		GameStatePlayoutTest.class,
-		ModelObserverTest.class
+//		GameStateGameOverTest.class,
+//		GameStateRoundTest.class,
+//		GameStatePlayerTest.class,
+//		GameStateDetectivesAvailableMovesTest.class,
+//		GameStateMrXAvailableMovesTest.class,
+//		GameStatePlayoutTest.class,
+//		ModelObserverTest.class
 })
 public class AllTest {}
