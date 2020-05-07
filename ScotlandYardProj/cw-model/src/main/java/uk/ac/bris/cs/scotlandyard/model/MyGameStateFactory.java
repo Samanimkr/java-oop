@@ -8,6 +8,8 @@ import javax.annotation.Nonnull;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,13 +45,17 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.detectives = detectives;
 
 
-//			System.out.println("setup: " + setup);
+			System.out.println("everyone: " + everyone);
 
 			// Checking attributes are not null
 			if (mrX == null) throw new NullPointerException();
 			if (detectives == null) throw new NullPointerException();
+
+			ArrayList<Piece> coloursTaken = new ArrayList<Piece>();
 			for (Player detective : detectives) {
-				System.out.println("LOGG: " + detective);
+				if (coloursTaken.contains(detective.piece())) throw new IllegalArgumentException();
+				coloursTaken.add(detective.piece());
+
 				if (detective == null) throw new NullPointerException();
 				if (detective.isMrX()) throw new IllegalArgumentException();
 			}
