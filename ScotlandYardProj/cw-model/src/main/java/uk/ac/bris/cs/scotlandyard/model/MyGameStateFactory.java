@@ -44,20 +44,25 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.mrX = mrX;
 			this.detectives = detectives;
 
-
-			System.out.println("everyone: " + everyone);
-
 			// Checking attributes are not null
 			if (mrX == null) throw new NullPointerException();
+			if (mrX.isDetective()) throw new IllegalArgumentException();
 			if (detectives == null) throw new NullPointerException();
 
 			ArrayList<Piece> coloursTaken = new ArrayList<Piece>();
-			for (Player detective : detectives) {
-				if (coloursTaken.contains(detective.piece())) throw new IllegalArgumentException();
-				coloursTaken.add(detective.piece());
+			ArrayList<Integer> locationsTaken = new ArrayList<Integer>();
 
+			for (Player detective : detectives) {
 				if (detective == null) throw new NullPointerException();
 				if (detective.isMrX()) throw new IllegalArgumentException();
+
+				if (coloursTaken.contains(detective.piece())) throw new IllegalArgumentException(); // testDuplicateDetectivesShouldThrow
+				coloursTaken.add(detective.piece());
+
+				if (locationsTaken.contains(detective.location())) throw new IllegalArgumentException(); // testLocationOverlapBetweenDetectivesShouldThrow
+				locationsTaken.add(detective.location());
+
+				if (detective.has(ScotlandYard.Ticket.SECRET)) throw new IllegalArgumentException(); // testDetectiveHaveSecretTicketShouldThrow
 			}
 			if (setup.rounds.isEmpty()) throw new IllegalArgumentException();
 		}
