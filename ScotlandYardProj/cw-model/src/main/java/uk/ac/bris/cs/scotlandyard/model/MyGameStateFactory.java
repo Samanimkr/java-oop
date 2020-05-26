@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 public final class MyGameStateFactory implements Factory<GameState> {
 
 	private final class MyGameState implements GameState {
-		private GameSetup setup;
-		private ImmutableSet<Piece> remaining;
-		private ImmutableList<LogEntry> log;
-		private Player mrX;
-		private List<Player> detectives;
-		private ImmutableList<Player> everyone;
-		private ImmutableSet<Move> moves;
+		private final GameSetup setup;
+		private final ImmutableSet<Piece> remaining;
+		private final ImmutableList<LogEntry> log;
+		private final Player mrX;
+		private final List<Player> detectives;
+		private final ImmutableList<Player> everyone;
+		private final ImmutableSet<Move> moves;
 		private ImmutableSet<Piece> winner;
 		private int currentRound = 0;
 
@@ -186,13 +186,15 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 
-		@Override public GameSetup getSetup() { return setup; };
+		@Override public GameSetup getSetup() { return setup; }
+
 		@Override public ImmutableSet<Piece> getPlayers() {
 			// Go through all the players and return a set of their pieces
-			return ImmutableSet.<Piece>copyOf(
+			return ImmutableSet.copyOf(
 					this.everyone.stream().map(Player::piece).collect(Collectors.toSet())
 			);
-		};
+		}
+
 		@Override public Optional<Integer> getDetectiveLocation(Piece.Detective detective) {
 			// Find the detective we're looking for and return their location
 			for (final Player p : detectives) {
@@ -200,17 +202,21 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 			// If it wasn't found then return empty
 			return Optional.empty();
-		};
+		}
+
 		@Override public Optional<TicketBoard> getPlayerTickets(Piece piece) {
 			// Find the piece we're looking for and return their ticket as a PlayerTickets object
 			for (final Player p : this.everyone) {
 				if (p.piece() == piece) return Optional.of(new PlayerTickets(p.tickets()));
-			};
+			}
 			// If it wasn't found then return empty
 			return Optional.empty();
-		};
-		@Override public ImmutableList<LogEntry> getMrXTravelLog() { return this.log; };
-		@Override public ImmutableSet<Move> getAvailableMoves() { return this.moves; };
+		}
+
+		@Override public ImmutableList<LogEntry> getMrXTravelLog() { return this.log; }
+
+		@Override public ImmutableSet<Move> getAvailableMoves() { return this.moves; }
+
 		@Override public GameState advance(Move move) {
 			// Stop illegal moves from happening
 			if (!moves.contains(move)) throw new IllegalArgumentException("Illegal move: " + move);
@@ -219,8 +225,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (move.commencedBy().isDetective()) currentRound++;
 
 			return null;
-		};
-		@Override public ImmutableSet<Piece> getWinner() { return ImmutableSet.of(); };
+		}
+
+		@Override public ImmutableSet<Piece> getWinner() { return ImmutableSet.of(); }
 	}
 
 	@Nonnull @Override public GameState build(GameSetup setup, Player mrX, ImmutableList<Player> detectives) {
