@@ -75,8 +75,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.everyone = ImmutableList.<Player>builder().add(this.mrX).addAll(this.detectives).build();
 
 			// Calculate the possible single and double moves that the player can take and store it in 'moves'
-			ImmutableSet<Move.SingleMove> singleMoves = makeSingleMoves(this.mrX, this.mrX.location());
-			ImmutableSet<Move.DoubleMove> doubleMoves = makeDoubleMoves(this.mrX, this.mrX.location(), singleMoves);
+			ImmutableSet<SingleMove> singleMoves = makeSingleMoves(this.mrX, this.mrX.location());
+			ImmutableSet<DoubleMove> doubleMoves = makeDoubleMoves(this.mrX, this.mrX.location(), singleMoves);
 			this.moves = ImmutableSet.<Move>builder().addAll(singleMoves).addAll(doubleMoves).build();
 		}
 
@@ -190,7 +190,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override public ImmutableSet<Piece> getPlayers() {
 			// Go through all the players and return a set of their pieces
 			return ImmutableSet.<Piece>copyOf(
-					this.everyone.stream().map(d -> d.piece()).collect(Collectors.toSet())
+					this.everyone.stream().map(Player::piece).collect(Collectors.toSet())
 			);
 		};
 		@Override public Optional<Integer> getDetectiveLocation(Piece.Detective detective) {
