@@ -95,7 +95,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<SingleMove> makeSingleMoves(Player player, int source) {
-			// Creating an array for the available singleMoves
+			// Creating an array for the available single moves
 			final ArrayList<SingleMove> singleMoves = new ArrayList<>();
 
 			// Iterate through all the destinations the player could move to from his current position
@@ -115,7 +115,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 				// Go through all the transport methods that can take the player to that destination
 				for (Transport t : Objects.requireNonNull(this.setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()))) {
-					// If the player has the required transport ticket then add this destination to avaiable singleMoves
+					// If the player has the required transport ticket then add this destination to avaiable single moves
 					if (player.has(t.requiredTicket()))
 						singleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
 				}
@@ -130,57 +130,60 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<DoubleMove> makeDoubleMoves(Player player, int source, ImmutableSet<SingleMove> singleMoves) {
+			// Calculate the number of rounds left
 			int roundsLeft = this.setup.rounds.size() - currentRound;
+			// If the player doesn't have a 'Double' ticket or there's not enough rounds left, then return an empty set
 			if (!player.has(Ticket.DOUBLE) || roundsLeft < 2) return ImmutableSet.of();
 
-			// Creating an array for the available singleMoves
+			// Creating an array for the available double moves
 			final ArrayList<DoubleMove> doubleMoves = new ArrayList<>();
 
-			for (var move : singleMoves) {
-				var source2 = move.visit(new Visitor<Integer>() {
+			// Cycling through the already calculated available single moves
+			for (SingleMove move : singleMoves) {
+				// Getting the destination of the move
+				int destination1 = move.visit(new Visitor<Integer>() {
 					@Override public Integer visit(SingleMove move) {
 						return move.destination;
 					}
-
-					@Override
-					public Integer visit(DoubleMove move) {
+					@Override public Integer visit(DoubleMove move) {
 						return move.destination1;
 					}
 				});
 
-				for (int destination : this.setup.graph.adjacentNodes(source2)) {
+				// Iterate through all the destinations the player could move to from destination1
+				for (int destination2 : this.setup.graph.adjacentNodes(destination1)) {
 					boolean occupied = false;
 
-					// If the destination is occupied by a detective then set 'occupied' to true
+					// If destination2 is occupied by a detective then set 'occupied' to true
 					for (Player detective : this.detectives) {
-						if (detective.location() == destination) {
+						if (detective.location() == destination2) {
 							occupied = true;
 							break;
 						}
 					}
 
-					// Skip this iteration if the destination has been occupied
+					// Skip this iteration if destination2 has been occupied
 					if (occupied) continue;
 
-					// Go through all the transport methods that can take the player to that destination
-					for (Transport t : Objects.requireNonNull(this.setup.graph.edgeValueOrDefault(source2, destination, ImmutableSet.of()))) {
-						// If the player has the required transport ticket then add this destination to avaiable singleMoves
+					// Go through all the transport methods that can take the player from destination1 to destination2
+					for (Transport t : Objects.requireNonNull(this.setup.graph.edgeValueOrDefault(destination1, destination2, ImmutableSet.of()))) {
+						// IF the player has 1 required transport ticket and it's different to the first move ticket
+						// OR the player has 2+ required transport tickets and it's the same as the first move ticket
+						// THEN add this destination to avaiable double moves
 						if ((player.has(t.requiredTicket()) && t.requiredTicket() != move.ticket)
 								|| (player.hasAtLeast(t.requiredTicket(),2) && t.requiredTicket() == move.ticket))
-							doubleMoves.add(new DoubleMove(player.piece(), source, move.ticket, source2, t.requiredTicket(), destination));
+							doubleMoves.add(new DoubleMove(player.piece(), source, move.ticket, destination1, t.requiredTicket(), destination2));
 					}
 
-					// If the player has 2 'Secret' tickets then add another doubemove destination using a 'Secret' ticket
+					// If the player has 2 'Secret' tickets then add another double move destination using a 'Secret' ticket
 					if (player.hasAtLeast(Ticket.SECRET, 2)) {
-						doubleMoves.add(new DoubleMove(player.piece(), source, move.ticket, source2, Ticket.SECRET, destination));
+						doubleMoves.add(new DoubleMove(player.piece(), source, move.ticket, destination1, Ticket.SECRET, destination2));
 					}
 				}
 			}
 
 			return ImmutableSet.copyOf(doubleMoves);
 		}
-
-
 
 
 		@Override public GameSetup getSetup() { return setup; };
@@ -209,7 +212,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override public ImmutableList<LogEntry> getMrXTravelLog() { return this.log; };
 		@Override public ImmutableSet<Move> getAvailableMoves() { return this.moves; };
 		@Override public GameState advance(Move move) {
+			// Stop illegal moves from happening
 			if (!moves.contains(move)) throw new IllegalArgumentException("Illegal move: " + move);
+
+			// If this move was by done by a detective then it's time to increment the currentRound number
 			if (move.commencedBy().isDetective()) currentRound++;
 
 			return null;
